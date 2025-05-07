@@ -52,7 +52,7 @@ This will:
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/topcv-job-crawler.git
+   git clone https://github.com/ngnphamgiahuy/topcv-job-crawler.git
    cd topcv-job-crawler
    ```
 
