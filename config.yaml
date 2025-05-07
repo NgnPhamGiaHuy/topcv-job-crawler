@@ -10,6 +10,13 @@ crawling:
   user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
   # Note: On first run, the crawler will scan ALL available pages, then use pages_to_scan for subsequent runs
 
+# Proxy settings
+proxy:
+  enabled: false  # Set to true to enable proxy
+  http: ""  # HTTP proxy URL (e.g., "http://user:pass@host:port")
+  https: ""  # HTTPS proxy URL (e.g., "https://user:pass@host:port")
+  # Example free proxy: "http://185.199.229.156:7492"
+
 # Output paths for storing job data
 output:
   jobs_json: "data/jobs.json"

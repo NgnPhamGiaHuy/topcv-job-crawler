@@ -46,6 +46,28 @@ class TopCVCrawler:
             'Referer': 'https://www.topcv.vn/'
         })
         
+        # Apply proxy configuration if enabled
+        self.setup_proxy()
+        
+    def setup_proxy(self):
+        """
+        Configure proxies for the requests session if enabled in config
+        """
+        if 'proxy' in self.config and self.config['proxy']['enabled']:
+            proxies = {}
+            
+            if self.config['proxy']['http']:
+                proxies['http'] = self.config['proxy']['http']
+                
+            if self.config['proxy']['https']:
+                proxies['https'] = self.config['proxy']['https']
+            
+            if proxies:
+                self.session.proxies.update(proxies)
+                logger.info(f"Using proxies: {proxies}")
+            else:
+                logger.warning("Proxy is enabled but no proxy URLs are configured")
+        
     def get_job_listings(self, page: int = 1) -> Tuple[List[Dict[str, Any]], bool]:
         """
         Fetch job listings from search results page
@@ -127,6 +149,23 @@ class TopCVCrawler:
             try:
                 response = self.session.get(url, timeout=self.timeout)
                 self.last_request_time = time.time()
+                
+                if response.status_code == 403:
+                    logger.error(f"Received 403 Forbidden error from {url}. This may indicate IP blocking.")
+                    
+                    # Check if proxy is enabled
+                    if 'proxy' not in self.config or not self.config['proxy']['enabled']:
+                        logger.warning("Consider enabling proxy in config.yaml to bypass 403 errors")
+                    
+                    retries += 1
+                    if retries >= self.max_retries:
+                        logger.error(f"Max retries reached for {url}")
+                        return None
+                        
+                    sleep_time = backoff * (2 ** (retries - 1))
+                    logger.info(f"Retrying in {sleep_time:.1f} seconds...")
+                    time.sleep(sleep_time)
+                    continue
                 
                 if response.status_code == 429:
                     # Rate limited - set flag and use longer backoff
