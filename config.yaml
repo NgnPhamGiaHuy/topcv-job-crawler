@@ -1,0 +1,27 @@
+# TopCV Job Crawler Configuration
+
+# Base URL and pagination settings
+crawling:
+  base_url: "https://www.topcv.vn/tim-viec-lam-moi-nhat"
+  pages_to_scan: 3  # Number of pages to scan per cycle (only after initial full crawl)
+  sleep_interval: 1800  # Time to wait between cycles in seconds (30 minutes)
+  timeout: 30  # Request timeout in seconds
+  max_retries: 5  # Maximum number of retries for failed requests
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
+  # Note: On first run, the crawler will scan ALL available pages, then use pages_to_scan for subsequent runs
+
+# Output paths for storing job data
+output:
+  jobs_json: "data/jobs.json"
+  jobs_csv: "data/jobs.csv"
+  job_cache_file: "data/job_cache.pkl"  # File to store job IDs to avoid duplicates
+
+# Logging configuration
+logging:
+  log_file: "logs/crawler.log"
+  log_level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+# Runtime configuration
+runtime:
+  max_runtime: 0  # Maximum runtime in seconds (0 = unlimited)
+  daemon_mode: true  # Run continuously in a loop 
