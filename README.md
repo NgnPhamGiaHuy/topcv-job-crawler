@@ -1,36 +1,58 @@
-# 🔍 TopCV Job Crawler
+<div align="center">
+  <h1>🔍 TopCV Job Crawler</h1>
+  <p>A production-grade tool for continuously crawling job listings from job sites.</p>
 
-![Python Version](https://img.shields.io/badge/python-3.7%2B-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+  <p>
+    <img src="https://img.shields.io/badge/python-3.7%2B-blue.svg" alt="Python Version" />
+    <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License" />
+  </p>
+</div>
 
-A production-grade tool for continuously crawling job listings from TopCV.vn. This tool automatically scrapes job information, processes the data, and saves it to both JSON and CSV formats for easy analysis.
+## 📋 Overview
 
-## 📘 Features
+TopCV Job Crawler is a robust Python application designed to efficiently crawl job listings from various job posting sites. Currently, it focuses on [TopCV.vn](https://www.topcv.vn), a major Vietnamese job portal, but features an extensible architecture for adding support for other job sites.
 
-- Crawls job listings from TopCV.vn with configurable parameters
-- Extracts detailed job information including salary, requirements, benefits
-- Supports continuous operation with configurable intervals
-- Prevents duplicates with intelligent caching
-- Handles rate limiting with automatic backoff
-- Provides robust logging
-- Saves data in both JSON and CSV formats
+The tool is built with a focus on reliability, configurability, and data consistency, making it suitable for both one-time data extraction and continuous monitoring of job postings.
 
-## 🧰 Tech Stack
+## ✨ Key Features
 
-- Python 3.7+
-- BeautifulSoup4 for HTML parsing
-- Pandas for data manipulation
-- Requests for HTTP requests
-- PyYAML for configuration management
-- Schedule for periodic execution
+- **Multiple Crawling Modes**:
+  - 🔄 Continuous mode with configurable intervals
+  - 🏃‍♂️ One-time execution mode
+  - 🌐 Full crawl of all available pages
+
+- **Robust Implementation**:
+  - ⏱️ Rate limiting to respect server resources
+  - 🔁 Automatic retries with exponential backoff
+  - 🛡️ Proxy support for distributed crawling
+  - 🧩 Modular architecture with clean interfaces
+
+- **Data Management**:
+  - 💾 Multiple output formats (JSON, CSV)
+  - 🔄 Incremental updates to avoid duplicates
+  - 📊 Structured data for easy analysis
+
+- **Developer-Friendly**:
+  - 📝 Comprehensive logging
+  - 🔧 Highly configurable via YAML
+  - 🧪 Clean code with separation of concerns
+
+## 🛠️ Tech Stack
+
+- **Core**: Python 3.7+
+- **Web Scraping**: BeautifulSoup4, Requests
+- **Data Processing**: Pandas
+- **Configuration**: PyYAML
+- **Scheduling**: Schedule library
 
 ## 📦 Installation
 
 ### Prerequisites
+
 - Python 3.7 or higher
 - pip (Python package manager)
 
-### Option 1: Using the setup script
+### Option 1: Using the Setup Script (Recommended)
 
 The easiest way to get started is using the provided setup script:
 
@@ -48,7 +70,17 @@ This will:
 3. Install all required packages
 4. Set up log and data directories
 
-### Option 2: Manual installation
+For Docker deployment:
+
+```bash
+# Setup with Docker
+./setup.sh --docker
+
+# Build and setup with Docker
+./setup.sh --build-docker
+```
+
+### Option 2: Manual Installation
 
 1. Clone this repository:
    ```bash
@@ -78,21 +110,27 @@ This will:
 # Build the Docker image
 docker build -t topcv-job-crawler .
 
-# Run the container
+# Run the container with volumes for data persistence
 docker run -v $(pwd)/data:/app/data -v $(pwd)/logs:/app/logs topcv-job-crawler
 ```
 
 ## 🚀 Usage
 
-### Basic Usage
-
-To start the crawler with default settings:
+### Running the Crawler
 
 ```bash
+# Run in continuous mode (default)
 python crawler.py
-```
 
-By default, the crawler runs continuously, checking for new jobs at the interval specified in the config file.
+# Run once and exit
+python crawler.py --once
+
+# Run a full crawl (all pages)
+python crawler.py --full
+
+# Specify a custom config file
+python crawler.py --config my_config.yaml
+```
 
 ### Command Line Options
 
@@ -100,50 +138,57 @@ By default, the crawler runs continuously, checking for new jobs at the interval
 python crawler.py --help
 ```
 
-Available options:
-- `--config`, `-c`: Path to the configuration file (default: config.yaml)
-- `--once`, `-o`: Run once and exit (for development/testing)
-- `--full`, `-f`: Crawl all available pages, not just the configured number
+| Option | Description |
+|--------|-------------|
+| `--config`, `-c` | Path to the configuration file (default: config.yaml) |
+| `--once`, `-o` | Run once and exit (for development/testing) |
+| `--full`, `-f` | Crawl all available pages, not just the configured number |
 
-### Examples
+### Example Commands
 
-Run once for testing:
 ```bash
+# Development: Run once for testing
 python crawler.py --once
-```
 
-Run with a specific config file:
-```bash
-python crawler.py --config my-config.yaml
-```
+# Production: Run with a specific config file
+python crawler.py --config production.yaml
 
-Perform a full crawl and then exit:
-```bash
+# Full data collection: Crawl all pages once
 python crawler.py --once --full
 ```
 
-## 🛠️ Configuration
+## ⚙️ Configuration
 
-The crawler is configured through the `config.yaml` file. Here are the key settings:
+The crawler is configured through the `config.yaml` file:
 
 ```yaml
+# Base URL and pagination settings
 crawling:
   base_url: "https://www.topcv.vn/tim-viec-lam-moi-nhat"
   pages_to_scan: 3  # Number of pages to scan per cycle
-  sleep_interval: 1800  # Time to wait between cycles in seconds (30 minutes)
+  sleep_interval: 1800  # Time between cycles in seconds (30 minutes)
   timeout: 30  # Request timeout in seconds
-  max_retries: 5  # Maximum number of retries for failed requests
+  max_retries: 5  # Maximum retries for failed requests
   user_agent: "Mozilla/5.0 ..."
 
+# Proxy settings
+proxy:
+  enabled: false  # Set to true to enable proxy
+  http: ""  # HTTP proxy URL
+  https: ""  # HTTPS proxy URL
+
+# Output paths for storing job data
 output:
   jobs_json: "data/jobs.json"
   jobs_csv: "data/jobs.csv"
-  job_cache_file: "data/job_cache.pkl"
+  job_cache_file: "data/job_cache.pkl"  # For deduplication
 
+# Logging configuration
 logging:
   log_file: "logs/crawler.log"
   log_level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+# Runtime configuration
 runtime:
   max_runtime: 0  # Maximum runtime in seconds (0 = unlimited)
   daemon_mode: true  # Run continuously in a loop
@@ -151,22 +196,93 @@ runtime:
 
 ## 📊 Output Data
 
-The crawler generates two main output files:
+The crawler generates data files in the `data/` directory:
 
-1. `data/jobs.json`: Contains the raw job data in JSON format
-2. `data/jobs.csv`: Contains the same data in CSV format for easy import into data analysis tools
+### Data Format
 
-The data includes:
-- Job title, company name, and location
-- Salary information (including min/max values and currency)
-- Job description, requirements, and benefits
-- Posted date and application deadline
-- URL to the original job posting
+The job data includes:
 
-## 👥 Contributing
+| Field | Description |
+|-------|-------------|
+| `id` | Unique identifier for the job |
+| `title` | Job title |
+| `company_name` | Name of the hiring company |
+| `location` | Job location |
+| `salary_min` | Minimum salary (if available) |
+| `salary_max` | Maximum salary (if available) |
+| `salary_currency` | Currency for salary figures |
+| `job_description` | Full job description |
+| `job_requirements` | Job requirements and qualifications |
+| `job_benefits` | Benefits offered |
+| `posting_date` | Date when job was posted |
+| `application_deadline` | Deadline for applications |
+| `job_url` | URL to the original job posting |
+| `crawled_at` | Timestamp when job was crawled |
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+## 🏗️ Architecture
+
+The crawler follows clean code principles with a modular, extensible architecture:
+
+### Core Components
+
+```
+src/
+├── core/
+│   ├── interfaces.py       # Core interfaces for components
+│   ├── crawler_engine.py   # Main crawler orchestration
+│   ├── http_client.py      # HTTP client with rate limiting
+│   ├── job_crawler.py      # Site-specific crawler implementations
+│   ├── pagination.py       # Pagination handling
+│   └── storage.py          # Data persistence
+├── parser/
+│   ├── topcv_parser.py     # TopCV-specific parser
+│   ├── details_parser.py   # Job details parsing
+│   ├── listing_parser.py   # Job listing parsing
+│   ├── html_tools.py       # HTML parsing utilities
+│   ├── salary_parser.py    # Salary information parsing
+│   └── templates/          # Site-specific HTML templates
+├── utils/
+│   ├── config.py           # Configuration loading
+│   ├── filesystem.py       # File system operations
+│   └── signal_handler.py   # Signal handling for graceful shutdown
+└── cli/
+    └── parser.py           # Command-line argument parsing
+```
+
+### Design Patterns Used
+
+- **Strategy Pattern**: Different crawler implementations for different job sites
+- **Factory Pattern**: Creates appropriate parser and crawler instances
+- **Decorator Pattern**: Implements retry logic for HTTP requests
+- **Repository Pattern**: Abstracts data storage operations
+
+## 🔧 Extending
+
+### Adding Support for a New Job Site
+
+1. Create a new crawler implementation in `src/core/job_crawler.py` extending `JobCrawlerBase`
+2. Create a parser implementation in `src/parser/` implementing `ParserInterface`
+3. Add HTML templates in `src/parser/templates/` if needed
+4. Add new crawler and parser to their respective factory functions
+5. Update configuration file with site-specific settings
+
+## 🤝 Contributing
+
+Contributions are welcome! Here's how you can help:
+
+1. **Fork** the repository on GitHub
+2. **Clone** your fork to your local machine
+3. **Create a branch** for your feature or bug fix
+4. **Make your changes** and commit them
+5. **Push** your changes to your fork
+6. Submit a **Pull Request** to the main repository
+
+Please ensure your code follows the project's coding style and includes appropriate tests.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 📬 Contact
+
+For questions or suggestions, please open an issue on the GitHub repository. 
